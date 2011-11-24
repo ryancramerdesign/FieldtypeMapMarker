@@ -36,7 +36,7 @@ class MapMarker extends WireData {
 
 		if($key == 'lat' || $key == 'lng') {
 			// if value isn't numeric, then it's not valid: make it blank
-			if(!is_numeric($value)) $value = 0;	
+			if(!is_numeric($value)) $value = '';	
 
 		} else if($key == 'address') {
 			$value = wire('sanitizer')->text($value);

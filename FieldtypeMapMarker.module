@@ -140,8 +140,10 @@ class FieldtypeMapMarker extends Fieldtype {
 		$schema = parent::getDatabaseSchema($field); 
 
 		$schema['data'] = "VARCHAR(255) NOT NULL DEFAULT ''"; 	// address (reusing the 'data' field from default schema)
-		$schema['lat'] = "FLOAT(10,6) NOT NULL DEFAULT 0";	// latitude
-		$schema['lng'] = "FLOAT(10,6) NOT NULL DEFAULT 0";	// longitude
+		//$schema['lat'] = "FLOAT(10,6) NOT NULL DEFAULT 0";	// latitude
+		//$schema['lng'] = "FLOAT(10,6) NOT NULL DEFAULT 0";	// longitude
+		$schema['lat'] = "VARCHAR(30) NOT NULL DEFAULT ''";	// latitude
+		$schema['lng'] = "VARCHAR(30) NOT NULL DEFAULT ''";	// longitude
 		$schema['status'] = "TINYINT NOT NULL DEFAULT 0";	// geocode status
 		$schema['keys']['latlng'] = "KEY latlng (lat, lng)";	// keep an index of lat/lng 
 
