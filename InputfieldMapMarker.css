@@ -1,0 +1,29 @@
+.InputfieldMapMarker input {
+	width: 100%; 
+}
+
+.InputfieldMapMarkerAddress {
+	float: left; 
+	width: 51%; 
+	padding-right: 1%; 
+}
+
+.InputfieldMapMarkerLat,
+.InputfieldMapMarkerLng {
+	float: left; 
+	width: 23%; 
+}
+
+.InputfieldMapMarkerLat {
+	padding-right: 1%; 
+}
+
+.InputfieldMapMarker .notes {
+	clear: both; 
+}
+
+.InputfieldMapMarkerMap {
+	width: 100%; 
+	height: 300px; 
+}
+
