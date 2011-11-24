@@ -36,6 +36,7 @@ class MapMarker extends WireData {
 
 		if($key == 'lat' || $key == 'lng') {
 			// if value isn't numeric, then it's not valid: make it blank
+			if(strpos($value, ',') !== false) $value = str_replace(',', '.', $value); 
 			if(!is_numeric($value)) $value = '';	
 
 		} else if($key == 'address') {
