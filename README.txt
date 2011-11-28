@@ -14,7 +14,7 @@ To use, install FieldtypeMapMarker. Then create a new field that uses it. Add th
 to a template and edit a page using that template. Enter an address, place or location of
 any sort into the 'Address' field, for example, Google Maps will geocode any of these:
 
-- 8300 Riding Ridge Place, McLean, VA 22102
+- 125 E. Court Square, Decatur, GA 30030
 - Atlanta, GA
 - Disney World
 
