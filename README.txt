@@ -7,6 +7,9 @@ geocodes the address to latitude/longitude using Google Maps API.
 This Fieldtype was created to serve as an example of creating a custom Fieldtype and 
 Inputfield that contains multiple pieces of data. 
 
+This Fieldtype has a support forum and the most up-to-date instructions at:
+http://processwire.com/talk/index.php/topic,752.0.html
+
 
 HOW TO USE
 ----------
