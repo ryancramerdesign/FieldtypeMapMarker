@@ -6,6 +6,8 @@
  */
 class MapMarker extends WireData {
 
+	const statusNoGeocode = -100;
+
 	protected $geocodeStatuses = array(
 
 		0 => 'N/A',
@@ -20,6 +22,8 @@ class MapMarker extends WireData {
 		-3 => 'OVER_QUERY_LIMIT',
 		-4 => 'REQUEST_DENIED',
 		-5 => 'INVALID_REQUEST',
+
+		-100 => 'Geocode OFF', // RCD
 
 		);
 
@@ -103,7 +107,7 @@ class MapMarker extends WireData {
 	public function __toString() {
 		return "{$this->address} ({$this->lat}, {$this->lng}) [{$this->statusString}]";
 	}
-	
+
 }
 
 

@@ -4,7 +4,13 @@
 
 .InputfieldMapMarkerAddress {
 	float: left; 
-	width: 51%; 
+	width: 48%; 
+	padding-right: 1%; 
+}
+
+.InputfieldMapMarkerToggle {
+	float: left; 
+	width: 2%; 
 	padding-right: 1%; 
 }
 
