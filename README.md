@@ -103,44 +103,45 @@ echo $map->render($items, 'map', array('height' => '500px'));
 
 Here is a list of all possible options (with defaults shown):  
 
-- default width of the map    
-  `width` => `100%`
+- `width`    
+   Width of the map (type: string; default: 100%).
 
-- default height of the map   
-  `height` => `300px`
+- `height`    
+   Height of the map (type: string; default: 300px) 
 
-- zoom level  
-  `zoom` => `12` (or `$field->defaultZoom`)
+- `zoom`    
+  Zoom level 1-25 (type: integer; default: from your field settings)
 
-- map type: ROADMAP, HYBRID or SATELLITE  
-  `type` => `HYBRID` or `$field->defaultType`
+- `type`   
+  Map type: ROADMAP, HYBRID or SATELLITE (type: string; default: from your field settings)
 
-- map ID attribute  
-  `id` => `mgmap`
+- `id`   
+   Map ID attribute (type: string; default: mgmap)
 
-- map class attribute  
-  `class` => `MarkupGoogleMap`
+- `class`   
+  Map class attribute (type: string; default: MarkupGoogleMap)
 
-- center latitude  
-  `lat` => `$field->defaultLat`
+- `lat`   
+  Map center latitude (type: string|float; default: from your field settings)  
 
-- center longitude  
-  `lng` => `$field->defaultLng`
+- `lng`   
+  Map center longitude (type: string|float; default: from your field settings)
 
-- set to false only if you will style the map <div> yourself  
-  `useStyles` => `true`
+- `useStyles`   
+  Whether to populate inline styles to the map DIV for width/height (type: boolean; default: true).
+  Set to false only if you will style the map <div> yourself.
 
-- allows single-marker map to use marker settings rather than map settings  
-  `useMarkerSettings` => `true` 
+- `useMarkerSettings`   
+  Makes single-marker map use marker settings rather than map settings (type: boolean; default: true).
 
-- field to use for the marker link, or blank to not link  
-  `markerLinkField` => `url`
+- `markerLinkField`   
+   Page field to use for the marker link, or blank to not link (type: string; default: url).
 
-- field to use for the marker title  
-  `markerTitleField` => `title`
+- `markerTitleField`    
+  Page field to use for the marker title, or blank not to use a marker title (type: string; default: title). 
 
-- map will automatically adjust to fit to the given markers (when multiple markers)  
-  `fitToMarkers` => `true` 
+- `fitToMarkers`   
+   When multiple markers are present, set map to automatically adjust to fit to the given markers (type: boolean; default: true). 
 
 ---------
 
