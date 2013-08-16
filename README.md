@@ -82,9 +82,9 @@ In the location where you want to output your map, place the following in your t
 `````````
 $map = $modules->get('MarkupGoogleMap'); 
 echo $map->render($page, 'map'); 
-// $page is the Page object that has the 'map' field
-// replace 'map' with the name of your FieldtypeMap field
 `````````
+In the above, $page is the Page object that has the 'map' field. Rreplace 'map' with the name of 
+your FieldtypeMap field
 
 To render a map with multiple markers on it, specify a PageArray rather than a single $page: 
 `````````
@@ -103,45 +103,45 @@ echo $map->render($items, 'map', array('height' => '500px'));
 
 Here is a list of all possible options (with defaults shown):  
 
-- `width`    
-   Width of the map (type: string; default: 100%).
+`width`    
+Width of the map (type: string; default: 100%).
 
-- `height`    
-   Height of the map (type: string; default: 300px) 
+`height`    
+Height of the map (type: string; default: 300px) 
 
-- `zoom`    
-  Zoom level 1-25 (type: integer; default: from your field settings)
+`zoom`    
+Zoom level 1-25 (type: integer; default: from your field settings)
 
-- `type`   
-  Map type: ROADMAP, HYBRID or SATELLITE (type: string; default: from your field settings)
+`type`   
+Map type: ROADMAP, HYBRID or SATELLITE (type: string; default: from your field settings)
 
-- `id`   
-   Map ID attribute (type: string; default: mgmap)
+`id`   
+Map ID attribute (type: string; default: mgmap)
 
-- `class`   
-  Map class attribute (type: string; default: MarkupGoogleMap)
+`class`   
+Map class attribute (type: string; default: MarkupGoogleMap)
 
-- `lat`   
-  Map center latitude (type: string|float; default: from your field settings)  
+`lat`   
+Map center latitude (type: string|float; default: from your field settings)  
 
-- `lng`   
-  Map center longitude (type: string|float; default: from your field settings)
+`lng`   
+Map center longitude (type: string|float; default: from your field settings)
 
-- `useStyles`   
-  Whether to populate inline styles to the map DIV for width/height (type: boolean; default: true).
-  Set to false only if you will style the map <div> yourself.
+`useStyles`   
+Whether to populate inline styles to the map div for width/height (type: boolean; default: true).
+Set to false only if you will style the map div yourself.
 
-- `useMarkerSettings`   
-  Makes single-marker map use marker settings rather than map settings (type: boolean; default: true).
+`useMarkerSettings`   
+Makes single-marker map use marker settings rather than map settings (type: boolean; default: true).
 
-- `markerLinkField`   
-   Page field to use for the marker link, or blank to not link (type: string; default: url).
+`markerLinkField`   
+Page field to use for the marker link, or blank to not link (type: string; default: url).
 
-- `markerTitleField`    
-  Page field to use for the marker title, or blank not to use a marker title (type: string; default: title). 
+`markerTitleField`    
+Page field to use for the marker title, or blank not to use a marker title (type: string; default: title). 
 
-- `fitToMarkers`   
-   When multiple markers are present, set map to automatically adjust to fit to the given markers (type: boolean; default: true). 
+`fitToMarkers`   
+When multiple markers are present, set map to automatically adjust to fit to the given markers (type: boolean; default: true). 
 
 ---------
 
