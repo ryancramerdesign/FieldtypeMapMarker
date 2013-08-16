@@ -17,12 +17,19 @@ var InputfieldMapMarker = {
 		scaleControl: false
 	},	
 
-	init: function(mapId, lat, lng) {
+	init: function(mapId, lat, lng, zoom, mapType) {
+
 		var options = InputfieldMapMarker.options; 
+
+		if(zoom < 1) zoom = 12; 
 		options.center = new google.maps.LatLng(lat, lng); 	
-		// options.zoom = 5; 
-		options.zoom = 12; // mats
+		options.zoom = parseInt(zoom); 
+
+		if(mapType == 'SATELLITE') options.mapTypeId = google.maps.MapTypeId.SATELLITE; 
+			else if(mapType == 'ROADMAP') options.mapTypeId = google.maps.MapTypeId.ROADMAP; 
+
 		var map = new google.maps.Map(document.getElementById(mapId), options); 	
+
 		var marker = new google.maps.Marker({
 			position: options.center, 
 			map: map,
@@ -33,11 +40,14 @@ var InputfieldMapMarker = {
 		var $lat = $map.siblings(".InputfieldMapMarkerLat").find("input[type=text]");
 		var $lng = $map.siblings(".InputfieldMapMarkerLng").find("input[type=text]");
 		var $addr = $map.siblings(".InputfieldMapMarkerAddress").find("input[type=text]"); 
+		var $addrJS = $map.siblings(".InputfieldMapMarkerAddress").find("input[type=hidden]"); 
 		var $toggle = $map.siblings(".InputfieldMapMarkerToggle").find("input[type=checkbox]");
+		var $zoom = $map.siblings(".InputfieldMapMarkerZoom").find("input[type=number]");
 		var $notes = $map.siblings(".notes");
 
 		$lat.val(marker.getPosition().lat());
 		$lng.val(marker.getPosition().lng());
+		$zoom.val(map.getZoom()); 
 
 		google.maps.event.addListener(marker, 'dragend', function(event) {
 			var geocoder = new google.maps.Geocoder();
@@ -48,11 +58,16 @@ var InputfieldMapMarker = {
 				geocoder.geocode({ 'latLng': position }, function(results, status) {
 					if(status == google.maps.GeocoderStatus.OK && results[0]) {
 						$addr.val(results[0].formatted_address);	
+						$addrJS.val($addr.val()); 
 					}
 					$notes.text(status);
 				});
 			}
 		});
+
+		google.maps.event.addListener(map, 'zoom_changed', function() {
+			$zoom.val(map.getZoom()); 
+		}); 
 
 		$addr.blur(function() {
 			if(!$toggle.is(":checked")) return true;
@@ -68,6 +83,10 @@ var InputfieldMapMarker = {
 				$notes.text(status);
 			});
 			return true;	
+		}); 
+
+		$zoom.change(function() {
+			map.setZoom(parseInt($(this).val())); 
 		}); 
 
 		$toggle.click(function() {
@@ -87,6 +106,6 @@ var InputfieldMapMarker = {
 $(document).ready(function() {
 	$(".InputfieldMapMarkerMap").each(function() {
 		var $t = $(this);
-		InputfieldMapMarker.init($t.attr('id'), $t.attr('data-lat'), $t.attr('data-lng')); 
+		InputfieldMapMarker.init($t.attr('id'), $t.attr('data-lat'), $t.attr('data-lng'), $t.attr('data-zoom'), $t.attr('data-type')); 
 	}); 
 }); 

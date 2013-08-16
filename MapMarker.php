@@ -34,6 +34,9 @@ class MapMarker extends WireData {
 		$this->set('lng', '');
 		$this->set('address', ''); 
 		$this->set('status', 0); 
+		$this->set('zoom', 0); 
+		// temporary runtime property to indicate the geocode should be skipped
+		$this->set('skipGeocode', false);
 	}
 
 	public function set($key, $value) {
@@ -49,6 +52,8 @@ class MapMarker extends WireData {
 		} else if($key == 'status') { 
 			$value = (int) $value; 
 			if(!isset($this->geocodeStatuses[$value])) $value = -1; // -1 = unknown
+		} else if($key == 'zoom') {
+			$value = (int) $value; 
 		}
 
 		return parent::set($key, $value);
@@ -60,6 +65,7 @@ class MapMarker extends WireData {
 	}
 
 	public function geocode() {
+		if($this->skipGeocode) return -100;
 
 		// check if address was already geocoded
 		if($this->geocodedAddress == $this->address) return $this->status; 
@@ -105,7 +111,7 @@ class MapMarker extends WireData {
 	 *
 	 */
 	public function __toString() {
-		return "{$this->address} ({$this->lat}, {$this->lng}) [{$this->statusString}]";
+		return "$this->address ($this->lat, $this->lng, $this->zoom) [$this->statusString]";
 	}
 
 }

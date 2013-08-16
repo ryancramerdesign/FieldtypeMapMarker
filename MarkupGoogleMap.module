@@ -1,0 +1,200 @@
+<?php
+
+/**
+ * ProcessWire Map Markup
+ *
+ * Renders maps for the FieldtypeMapMarker module
+ * 
+ * ProcessWire 2.x 
+ * Copyright (C) 2013 by Ryan Cramer 
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * 
+ * http://processwire.com
+ *
+ * USAGE:
+ * ======
+ *
+ * Add this somewhere before your closing </head> tag:
+ * 
+ *    <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
+ *  
+ * In the location where you want to output your map, do the following in your template file:
+ * 
+ *    $map = $modules->get('MarkupGoogleMap'); 
+ *    echo $map->render($page, 'map'); // replace 'map' with the name of your FieldtypeMap field
+ *
+ * To render a map with multiple markers on it, specify a PageArray rather than a single $page: 
+ *
+ *    $items = $pages->find("template=something, map!='', sort=title"); 
+ *    $map = $modules->get('MarkupGoogleMap'); 
+ *    echo $map->render($items, 'map'); 
+ *
+ * To specify options, provide a 3rd argument with an options array:
+ *
+ *    $map = $modules->get('MarkupGoogleMap'); 
+ *    echo $map->render($items, 'map', array('height' => '500px')); 
+ *
+ * 
+ * OPTIONS
+ * =======
+ * Here is a list of all possible options (with defaults shown):  
+ * 
+ * // default width of the map 
+ * 'width' => '100%' 
+ * 
+ * // default height of the map
+ * 'height' => '300px' 
+ * 
+ * // zoom level
+ * 'zoom' => 12 (or $field->defaultZoom)
+ * 
+ * // map type: ROADMAP, HYBRID or SATELLITE
+ * 'type' => 'HYBRID' or $field->defaultType
+ * 
+ * // map ID attribute
+ * 'id' => "mgmap" 
+ * 
+ * // map class attribute
+ * 'class' => "MarkupGoogleMap" 
+ * 
+ * // center latitude
+ * 'lat' => $field->defaultLat 
+ * 
+ * // center longitude
+ * 'lng' => $field->defaultLng 
+ * 
+ * // set to false only if you will style the map <div> yourself
+ * 'useStyles' => true 
+ * 
+ * // allows single-marker map to use marker settings rather than map settings
+ * 'useMarkerSettings' => true 
+ * 
+ * // field to use for the marker link, or blank to not link
+ * 'markerLinkField' => 'url' 
+ *
+ * // field to use for the marker title
+ * 'markerTitleField' => 'title' 
+ * 
+ * // map will automatically adjust to fit to the given markers (when multiple markers)
+ * 'fitToMarkers' => true 
+ *
+ *
+ */
+
+class MarkupGoogleMap extends WireData implements Module {
+
+	public static function getModuleInfo() {
+		return array(
+			'title' => 'Map Markup (Google Maps)',
+			'version' => 100,
+			'summary' => 'Renders Google Maps for the MapMarker Fieldtype',
+			'requires' => 'FieldtypeMapMarker',
+			);
+	}
+
+	/**
+	 * Include our MapMarker class, which serves as the value for fields of type FieldtypeMapMarker
+	 *
+	 */
+	public function init() {	
+		require_once(dirname(__FILE__) . '/MapMarker.php'); 
+	}
+
+	public function getOptions($fieldName) {
+
+		static $n = 0; 
+		$field = $this->fields->get($fieldName); 
+		if(!$field) throw new WireException("Unknown field: $fieldName"); 
+
+		return array(
+			'useStyles' => true, 
+			'fitToMarkers' => true, 
+			'useMarkerSettings' => true, 
+			'markerLinkField' => 'url', 
+			'markerTitleField' => 'title', 
+			'width' => '100%', 
+			'height' => $field->height, 
+			'zoom' => $field->defaultZoom ? (int) $field->defaultZoom : 12, 
+			'type' => $field->defaultType ? $field->defaultType : 'HYBRID', 
+			'id' => "mgmap" . (++$n), 
+			'class' => "MarkupGoogleMap", 
+			'lat' => $field->defaultLat,
+			'lng' => $field->defaultLng,
+			'n' => $n, 
+			);
+	}
+
+	public function getGMapScript() {
+		return "<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>";
+	}
+
+	public function render($pageArray, $fieldName, array $options = array()) {
+
+		static $n = 0; 
+		$n++;
+
+		$defaultOptions = $this->getOptions($fieldName); 
+		$options = array_merge($defaultOptions, $options); 
+		
+		if($pageArray instanceof Page) {
+			$page = $pageArray; 
+			$pageArray = new PageArray();
+			$pageArray->add($page); 
+		}
+
+		$height = $options['height']; 
+		$width = $options['width'];
+		if(empty($height)) $height = 300; 
+		if(ctype_digit("$height")) $height .= "px";
+		if(ctype_digit("$width")) $width .= "px";
+
+		$style = '';	
+		if($options['useStyles'] && !empty($height) && !empty($width)) {
+			$style = " style='width: $width; height: $height;'"; 
+		}	
+
+		$lat = $options['lat'];
+		$lng = $options['lng'];
+		$zoom = (int) $options['zoom'];
+		$type = in_array($options['type'], array('ROADMAP', 'SATELLITE', 'HYBRID')) ? $options['type'] : 'HYBRID';
+
+		if($options['useMarkerSettings'] && (count($pageArray) == 1 || !$lat)) {
+			// single marker overrides lat, lng and zoom settings
+			$marker = $pageArray->first()->get($fieldName); 
+			$lat = $marker->lat; 
+			$lng = $marker->lng; 
+			$zoom = (int) $marker->zoom;
+		}
+
+		$id = $options['id'];
+		$out = '';
+
+		if($n === 1) $out .= "<script type='text/javascript' src='{$this->config->urls->MarkupGoogleMap}MarkupGoogleMap.js'></script>";
+
+		$out .= "<div id='$id' class='$options[class]'$style></div>";
+
+		$out .= "<script type='text/javascript'>" .
+			"\nif(typeof google === 'undefined' || typeof google.maps === 'undefined') { " . 
+			"\nalert('MarkupGoogleMap Error: Please add the maps.googleapis.com script in your document head.'); " . 
+			"\n} else { " . 
+			"var $id = new MarkupGoogleMap(); " . 
+			"$id.setOption('zoom', $zoom); " . 
+			"$id.setOption('mapTypeId', google.maps.MapTypeId.$type); " . 
+			"$id.init('$id', $lat, $lng); "; 
+
+		foreach($pageArray as $page) {
+			$marker = $page->get($fieldName); 
+			if(!$marker instanceof MapMarker) continue; 
+			if(!$marker->lat) continue; 
+			$url = $options['markerLinkField'] ? $page->get($options['markerLinkField']) : '';
+			$title = $options['markerTitleField'] ? $page->get($options['markerTitleField']) : ''; 
+			$out .= "$id.addMarker($marker->lat, $marker->lng, '$url', '$title', ''); ";
+		}
+
+		if(count($pageArray) > 1 && $options['fitToMarkers']) $out .= "$id.fitToMarkers(); ";
+		$out .= "}</script>";
+
+		return $out; 
+	}
+}
+
