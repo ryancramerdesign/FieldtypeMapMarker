@@ -174,9 +174,9 @@ class MarkupGoogleMap extends WireData implements Module {
 		$out .= "<div id='$id' class='$options[class]'$style></div>";
 
 		$out .= "<script type='text/javascript'>" .
-			"\nif(typeof google === 'undefined' || typeof google.maps === 'undefined') { " . 
-			"\nalert('MarkupGoogleMap Error: Please add the maps.googleapis.com script in your document head.'); " . 
-			"\n} else { " . 
+			"if(typeof google === 'undefined' || typeof google.maps === 'undefined') { " . 
+			"alert('MarkupGoogleMap Error: Please add the maps.googleapis.com script in your document head.'); " . 
+			"} else { " . 
 			"var $id = new MarkupGoogleMap(); " . 
 			"$id.setOption('zoom', $zoom); " . 
 			"$id.setOption('mapTypeId', google.maps.MapTypeId.$type); " . 
