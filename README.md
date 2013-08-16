@@ -16,8 +16,7 @@ Inputfield will also be installed and used for input on the admin side. Installa
 of MarkupGoogleMap is optional. It provides a simple way to render Google maps with
 the data managed by FieldtypeMapMarker. 
 
-This Fieldtype has a support forum at: 
-http://processwire.com/talk/index.php/topic,752.0.html
+This Fieldtype has a [support forum](http://processwire.com/talk/index.php/topic,752.0.html)
 
 ## Using Map Marker
 
@@ -56,11 +55,12 @@ else that you might need latitude/longitude for).
 
 Lets assume that your field is called 'map'. Here is how you would access the
 components of it from the API:
-
+```````````
 echo $page->map->address;	// outputs the address you entered
 echo $page->map->lat; 		// outputs the latitude
 echo $page->map->lng; 		// outputs the longitude
 echo $page->map->zoom;		// outputs the zoom level
+`````````
 
 -------------
 
@@ -103,44 +103,44 @@ echo $map->render($items, 'map', array('height' => '500px'));
 
 Here is a list of all possible options (with defaults shown):  
 
-- default width of the map  
+- default width of the map    
   `width` => `100%`
 
-- default height of the map
+- default height of the map   
   `height` => `300px`
 
-- zoom level
+- zoom level  
   `zoom` => `12` (or `$field->defaultZoom`)
 
-- map type: ROADMAP, HYBRID or SATELLITE
+- map type: ROADMAP, HYBRID or SATELLITE  
   `type` => `HYBRID` or `$field->defaultType`
 
-- map ID attribute
+- map ID attribute  
   `id` => `mgmap`
 
-- map class attribute
+- map class attribute  
   `class` => `MarkupGoogleMap`
 
-- center latitude
+- center latitude  
   `lat` => `$field->defaultLat`
 
-- center longitude
+- center longitude  
   `lng` => `$field->defaultLng`
 
-- set to false only if you will style the map <div> yourself
-`useStyles` => `true`
+- set to false only if you will style the map <div> yourself  
+  `useStyles` => `true`
 
-- allows single-marker map to use marker settings rather than map settings
-`useMarkerSettings` => `true` 
+- allows single-marker map to use marker settings rather than map settings  
+  `useMarkerSettings` => `true` 
 
-- field to use for the marker link, or blank to not link
-`markerLinkField` => `url`
+- field to use for the marker link, or blank to not link  
+  `markerLinkField` => `url`
 
-- field to use for the marker title
-`markerTitleField` => `title`
+- field to use for the marker title  
+  `markerTitleField` => `title`
 
-- map will automatically adjust to fit to the given markers (when multiple markers)
-`fitToMarkers` => `true` 
+- map will automatically adjust to fit to the given markers (when multiple markers)  
+  `fitToMarkers` => `true` 
 
 ---------
 
