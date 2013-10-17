@@ -21,7 +21,7 @@ class InputfieldMapMarker extends Inputfield {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Marker',
-			'version' => 203,
+			'version' => 204,
 			'summary' => "Provides input for the MapMarker Fieldtype",
 			'requires' => 'FieldtypeMapMarker',
 			);
