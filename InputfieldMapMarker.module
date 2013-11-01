@@ -21,7 +21,7 @@ class InputfieldMapMarker extends Inputfield {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Marker',
-			'version' => 204,
+			'version' => 205,
 			'summary' => "Provides input for the MapMarker Fieldtype",
 			'requires' => 'FieldtypeMapMarker',
 			);
@@ -206,6 +206,7 @@ _OUT;
 			if($input["_{$name}_js_geocode_address"] == $marker->address) {
 				// prevent the geocoder from running in the fieldtype
 				$marker->skipGeocode = true; 
+				$this->message('Skipping geocode (already done by JS geocoder)', Notice::debug); 
 			} else {
 				$marker->geocode();
 			}

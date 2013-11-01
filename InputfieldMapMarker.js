@@ -79,8 +79,9 @@ var InputfieldMapMarker = {
 					marker.setPosition(position);
 					$lat.val(position.lat());
 					$lng.val(position.lng());
+					$addrJS.val($addr.val()); 
 				}
-				$notes.text(status);
+				$notes.text(status); 
 			});
 			return true;	
 		}); 
