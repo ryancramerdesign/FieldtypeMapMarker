@@ -32,6 +32,12 @@ function MarkupGoogleMap() {
 	this.map = null;
 	this.markers = [];
 	this.numMarkers = 0;
+	this.icon = '';
+
+	this.hoverBox = null;
+	this.hoverBoxOffsetTop = 0;
+	this.hoverBoxOffsetLeft = 0;
+
 	this.options = {
 		zoom: 10, 
 		center: null, 
@@ -43,6 +49,8 @@ function MarkupGoogleMap() {
 		scaleControl: false
 	};
 
+	this._currentURL = '';
+
 	this.init = function(mapID, lat, lng) {
 		if(lat != 0) this.options.center = new google.maps.LatLng(lat, lng); 
 		this.map = new google.maps.Map(document.getElementById(mapID), this.options); 
@@ -52,18 +60,60 @@ function MarkupGoogleMap() {
 		this.options[key] = value; 
 	}
 
-	this.addMarker = function(lat, lng, url, title, icon) {
+	this.setIcon = function(url) {
+		this.icon = url;
+	}
 
-		var latLng = new google.maps.LatLng(lat, lng); 
-		var marker = new google.maps.Marker({ 
-			position: latLng, 
-			map: this.map,
-			linkURL: ''
+	this.setHoverBox = function(markup) {
+
+		if(!markup.length) {
+			this.hoverBox = null;
+			return;
+		}
+
+		this.hoverBox = $(markup);
+		var $hoverBox = this.hoverBox;
+
+		this.hoverBoxOffsetTop = parseInt($hoverBox.attr('data-top')); 
+		this.hoverBoxOffsetLeft = parseInt($hoverBox.attr('data-left')); 
+
+		$("body").append($hoverBox);
+
+		// keep it hidden/out of the way until needed
+		$hoverBox.css({
+			position: 'absolute',
+			left: 0,
+			top: '-100px'
 		});
 
+		$hoverBox.mouseout(function() {
+			$hoverBox.hide();
+		}).click(function() {
+			if(this._currentURL.length > 0) window.location.href = this._currentURL;
+		});
+	}
+
+	this.addMarker = function(lat, lng, url, title, icon) {
+		if(lat == 0.0) return;
+
+		var latLng = new google.maps.LatLng(lat, lng); 
+		var zIndex = 99999 + this.numMarkers;
+
+		var markerOptions = {
+			position: latLng, 
+			map: this.map,
+			linkURL: '',
+			zIndex: zIndex
+		}; 
+
+		if(icon.length > 0) markerOptions.icon = icon;
+			else if(this.icon.length > 0) markerOptions.icon = this.icon;
+
+		var marker = new google.maps.Marker(markerOptions); 
+
 		if(url.length > 0) marker.linkURL = url;
-		if(icon.length > 0) marker.icon = icon;
-		marker.setTitle(title); 
+		if(this.hoverBox) marker.hoverBoxTitle = title; 
+			else marker.setTitle(title); 
 
 		this.markers[this.numMarkers] = marker;
 		this.numMarkers++;
@@ -73,21 +123,58 @@ function MarkupGoogleMap() {
 				window.location.href = marker.linkURL; 
 			}); 
 		}
+
+		if(this.hoverBox) {
+
+			var $hoverBox = this.hoverBox; 
+			var offsetTop = this.hoverBoxOffsetTop;
+			var offsetLeft = this.hoverBoxOffsetLeft; 
+
+			var mouseMove = function(e) {
+				$hoverBox.css({
+					'top': e.pageY + offsetTop,
+					'left': e.pageX + offsetLeft
+					});
+			}; 
+
+			console.log($hoverBox); 
+
+			google.maps.event.addListener(marker, 'mouseover', function(e) {
+				this._currentURL = url;
+				$hoverBox.html("<span>" + marker.hoverBoxTitle + "</span>")
+					.css('top', '0px')
+					.css('left', '0px')
+					.css('display', 'block')
+					.css('width', 'auto')
+					.css('z-index', 9999); 
+				$hoverBox.show();
+
+				$(document).mousemove(mouseMove); 
+			}); 
+
+			google.maps.event.addListener(marker, 'mouseout', function(e) {
+				$hoverBox.hide();
+				$(document).unbind("mousemove", mouseMove);
+			}); 
+
+		}
 	}
 
 	this.fitToMarkers = function() {
 
 		var bounds = new google.maps.LatLngBounds();
+		var map = this.map;
 
 		for(var i = 0; i < this.numMarkers; i++) {	
 			var latLng = this.markers[i].position; 
 			bounds.extend(latLng); 
 		}
 
-		this.map.fitBounds(bounds);
+		map.fitBounds(bounds);
 
-		var listener = google.maps.event.addListener(this.map, "idle", function() { 
-			if(this.map.getZoom() < 2) this.map.setZoom(2); 
+
+		var listener = google.maps.event.addListener(map, "idle", function() { 
+			if(map.getZoom() < 2) map.setZoom(2); 
 			google.maps.event.removeListener(listener); 
 		});
 	}
