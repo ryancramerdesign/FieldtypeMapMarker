@@ -78,6 +78,15 @@
  * // map will automatically adjust to fit to the given markers (when multiple markers)
  * 'fitToMarkers' => true 
  *
+ * // use hover box? When true, shows a tooltip-type box when you hover the marker, populated with the markerTitleField
+ * // this is often more useful than the default presentation google maps uses
+ * 'useHoverBox' => false
+ *
+ * // when useHoverBox is true, you can specify the markup used for it. Use the following (which is the default) as your starting point:
+ * 'hoverBoxMarkup' => "<div data-top='-10' data-left='15' style='background: #000; color: #fff; padding: 0.25em 0.5em; border-radius: 3px;'></div>", 
+ *
+ * // FUll URL to icon file to use for markers. Blank=use default Google marker icon. 
+ * 'icon' => '', 
  *
  */
 
@@ -86,7 +95,7 @@ class MarkupGoogleMap extends WireData implements Module {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Markup (Google Maps)',
-			'version' => 100,
+			'version' => 101,
 			'summary' => 'Renders Google Maps for the MapMarker Fieldtype',
 			'requires' => 'FieldtypeMapMarker',
 			);
@@ -110,6 +119,8 @@ class MarkupGoogleMap extends WireData implements Module {
 			'useStyles' => true, 
 			'fitToMarkers' => true, 
 			'useMarkerSettings' => true, 
+			'useHoverBox' => false, 
+			'hoverBoxMarkup' => "<div data-top='-10' data-left='15' style='background: #000; color: #fff; padding: 0.25em 0.5em; border-radius: 3px;'></div>", 
 			'markerLinkField' => 'url', 
 			'markerTitleField' => 'title', 
 			'width' => '100%', 
@@ -120,6 +131,7 @@ class MarkupGoogleMap extends WireData implements Module {
 			'class' => "MarkupGoogleMap", 
 			'lat' => $field->defaultLat,
 			'lng' => $field->defaultLng,
+			'icon' => '', // url to icon (blank=use default)
 			'n' => $n, 
 			);
 	}
@@ -155,7 +167,7 @@ class MarkupGoogleMap extends WireData implements Module {
 
 		$lat = $options['lat'];
 		$lng = $options['lng'];
-		$zoom = (int) $options['zoom'];
+		$zoom = $options['zoom'] > 0 ? (int) $options['zoom'] : $defaultOptions['zoom'];
 		$type = in_array($options['type'], array('ROADMAP', 'SATELLITE', 'HYBRID')) ? $options['type'] : 'HYBRID';
 
 		if($options['useMarkerSettings'] && (count($pageArray) == 1 || !$lat)) {
@@ -163,7 +175,7 @@ class MarkupGoogleMap extends WireData implements Module {
 			$marker = $pageArray->first()->get($fieldName); 
 			$lat = $marker->lat; 
 			$lng = $marker->lng; 
-			$zoom = (int) $marker->zoom;
+			if($marker->zoom > 0) $zoom = (int) $marker->zoom;
 		}
 
 		$id = $options['id'];
@@ -180,6 +192,8 @@ class MarkupGoogleMap extends WireData implements Module {
 			"var $id = new MarkupGoogleMap(); " . 
 			"$id.setOption('zoom', $zoom); " . 
 			"$id.setOption('mapTypeId', google.maps.MapTypeId.$type); " . 
+			($options['icon'] ? "$id.setIcon('$options[icon]'); " : "") . 
+			($options['useHoverBox'] ? "$id.setHoverBox('" . str_replace("'", '"', $options['hoverBoxMarkup']) . "');" : "") . 
 			"$id.init('$id', $lat, $lng); "; 
 
 		foreach($pageArray as $page) {
