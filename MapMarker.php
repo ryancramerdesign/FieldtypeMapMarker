@@ -30,8 +30,8 @@ class MapMarker extends WireData {
 	protected $geocodedAddress = '';
 
 	public function __construct() {
-		$this->set('lat', '');
-		$this->set('lng', '');
+		$this->set('lat', 0);
+		$this->set('lng', 0);
 		$this->set('address', ''); 
 		$this->set('status', 0); 
 		$this->set('zoom', 0); 
