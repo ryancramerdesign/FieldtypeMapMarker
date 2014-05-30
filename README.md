@@ -141,7 +141,10 @@ Page field to use for the marker link, or blank to not link (type: string; defau
 Page field to use for the marker title, or blank not to use a marker title (type: string; default: title). 
 
 `fitToMarkers`   
-When multiple markers are present, set map to automatically adjust to fit to the given markers (type: boolean; default: true). 
+When multiple markers are present, set map to automatically adjust to fit to the given markers (type: boolean; default: true).
+
+`bicyclingLayer`
+When set to true, adds the bicycling layer to the map. (type: boolean; default: false).
 
 ---------
 
