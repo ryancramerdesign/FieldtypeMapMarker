@@ -178,5 +178,12 @@ function MarkupGoogleMap() {
 			google.maps.event.removeListener(listener); 
 		});
 	}
+
+	this.addBicyclingLayer = function(layer) {
+		var map = this.map;
+
+		var bicyclingLayer = new google.maps.BicyclingLayer();
+		bicyclingLayer.setMap(map);
+	}
 }
 

@@ -194,7 +194,7 @@ class MarkupGoogleMap extends WireData implements Module {
 			"$id.setOption('mapTypeId', google.maps.MapTypeId.$type); " . 
 			($options['icon'] ? "$id.setIcon('$options[icon]'); " : "") . 
 			($options['useHoverBox'] ? "$id.setHoverBox('" . str_replace("'", '"', $options['hoverBoxMarkup']) . "');" : "") . 
-			"$id.init('$id', $lat, $lng); "; 
+			"$id.init('$id', $lat, $lng); " ;
 
 		foreach($pageArray as $page) {
 			$marker = $page->get($fieldName); 
@@ -205,10 +205,14 @@ class MarkupGoogleMap extends WireData implements Module {
 			$out .= "$id.addMarker($marker->lat, $marker->lng, '$url', '$title', ''); ";
 		}
 
+		if ($options['bicyclingLayer'] == true) {
+			$out .= "$id.addBicyclingLayer(); "; 
+		}
+
 		if(count($pageArray) > 1 && $options['fitToMarkers']) $out .= "$id.fitToMarkers(); ";
 		$out .= "}</script>";
 
-		return $out; 
+		return $out;
 	}
 }
 
