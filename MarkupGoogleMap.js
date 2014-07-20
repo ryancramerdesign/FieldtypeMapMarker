@@ -33,6 +33,8 @@ function MarkupGoogleMap() {
 	this.markers = [];
 	this.numMarkers = 0;
 	this.icon = '';
+	this.iconHover = '';
+	this.shadow = '';
 
 	this.hoverBox = null;
 	this.hoverBoxOffsetTop = 0;
@@ -46,8 +48,15 @@ function MarkupGoogleMap() {
 		mapTypeControlOptions: {
 			style: google.maps.MapTypeControlStyle.DROPDOWN_MENU	
 		}, 
-		scaleControl: false
+		scaleControl: false,
+
+		// disable points of interest
+		styles: [{
+			featureType: "poi", 
+			stylers: [ { visibility: "off" } ]
+		}]
 	};
+
 
 	this._currentURL = '';
 
@@ -62,6 +71,14 @@ function MarkupGoogleMap() {
 
 	this.setIcon = function(url) {
 		this.icon = url;
+	}
+	
+	this.setIconHover = function(url) {
+		this.iconHover = url;
+	}
+
+	this.setShadow = function(url) {
+		this.shadow = url;
 	}
 
 	this.setHoverBox = function(markup) {
@@ -93,7 +110,7 @@ function MarkupGoogleMap() {
 		});
 	}
 
-	this.addMarker = function(lat, lng, url, title, icon) {
+	this.addMarker = function(lat, lng, url, title, icon, shadow) {
 		if(lat == 0.0) return;
 
 		var latLng = new google.maps.LatLng(lat, lng); 
@@ -106,8 +123,13 @@ function MarkupGoogleMap() {
 			zIndex: zIndex
 		}; 
 
-		if(icon.length > 0) markerOptions.icon = icon;
-			else if(this.icon.length > 0) markerOptions.icon = this.icon;
+		if(typeof icon !== "undefined" && icon.length > 0) markerOptions.icon = icon;
+			else if(this.icon) markerOptions.icon = this.icon;
+		
+		// console.log(markerOptions); 
+		
+		if(typeof shadow !== "undefined" && shadow.length > 0) markerOptions.shadow = shadow; 
+			else if(this.shadow.length > 0) markerOptions.shadow = this.shadow; 
 
 		var marker = new google.maps.Marker(markerOptions); 
 
@@ -121,6 +143,16 @@ function MarkupGoogleMap() {
 		if(marker.linkURL.length > 0) {
 			google.maps.event.addListener(marker, 'click', function(e) {
 				window.location.href = marker.linkURL; 
+			}); 
+		}
+		
+		if(markerOptions.icon !== "undefined" && this.iconHover) {
+			var iconHover = this.iconHover; 
+			google.maps.event.addListener(marker, 'mouseover', function(e) {
+				marker.setIcon(iconHover); 
+			});
+			google.maps.event.addListener(marker, 'mouseout', function(e) {
+				marker.setIcon(markerOptions.icon); 
 			}); 
 		}
 
@@ -137,7 +169,7 @@ function MarkupGoogleMap() {
 					});
 			}; 
 
-			console.log($hoverBox); 
+			// console.log($hoverBox); 
 
 			google.maps.event.addListener(marker, 'mouseover', function(e) {
 				this._currentURL = url;

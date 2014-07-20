@@ -27,6 +27,7 @@ class FieldtypeMapMarker extends Fieldtype {
 			'version' => 206,
 			'summary' => 'Field that stores an address with latitude and longitude coordinates and has built-in geocoding capability with Google Maps API.',
 			'installs' => 'InputfieldMapMarker',
+			'icon' => 'map-marker', 
 			);
 	}
 
@@ -93,6 +94,9 @@ class FieldtypeMapMarker extends Fieldtype {
 		// get a blank MapMarker instance
 		$marker = $this->getBlankValue($page, $field); 
 
+		if("$value[lat]" === "0") $value['lat'] = '';
+		if("$value[lng]" === "0") $value['lng'] = '';
+
 		// populate the marker
 		$marker->address = $value['data'];
 		$marker->lat = $value['lat'];
@@ -125,8 +129,8 @@ class FieldtypeMapMarker extends Fieldtype {
 
 		$sleepValue = array(
 			'data' => $marker->address, 
-			'lat' => $marker->lat, 
-			'lng' => $marker->lng, 
+			'lat' => strlen($marker->lat) ? $marker->lat : 0, 
+			'lng' => strlen($marker->lng) ? $marker->lng : 0, 
 			'status' => $marker->status,
 			'zoom' => $marker->zoom
 			);

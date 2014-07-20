@@ -87,6 +87,9 @@
  *
  * // FUll URL to icon file to use for markers. Blank=use default Google marker icon. 
  * 'icon' => '', 
+ * 
+ * // Any extra javascript initialization code you want to occur before the map itself is drawn
+ * 'init' => '', 
  *
  */
 
@@ -132,6 +135,9 @@ class MarkupGoogleMap extends WireData implements Module {
 			'lat' => $field->defaultLat,
 			'lng' => $field->defaultLng,
 			'icon' => '', // url to icon (blank=use default)
+			'iconHover' => '', // url to icon when hovered (default=none)
+			'shadow' => '', // url to icon shadow (blank=use default)
+			'init' => '', // additional javascript code to insert in map initialization
 			'n' => $n, 
 			);
 	}
@@ -192,8 +198,11 @@ class MarkupGoogleMap extends WireData implements Module {
 			"var $id = new MarkupGoogleMap(); " . 
 			"$id.setOption('zoom', $zoom); " . 
 			"$id.setOption('mapTypeId', google.maps.MapTypeId.$type); " . 
-			($options['icon'] ? "$id.setIcon('$options[icon]'); " : "") . 
+			($options['icon'] ? "$id.setIcon('$options[icon]'); " : "") .
+			($options['iconHover'] ? "$id.setIconHover('$options[iconHover]'); " : "") . 
+			($options['shadow'] ? "$id.setShadow('$options[shadow]'); " : "") . 
 			($options['useHoverBox'] ? "$id.setHoverBox('" . str_replace("'", '"', $options['hoverBoxMarkup']) . "');" : "") . 
+			$options['init'] . 
 			"$id.init('$id', $lat, $lng); "; 
 
 		foreach($pageArray as $page) {

@@ -105,9 +105,10 @@ var InputfieldMapMarker = {
 		// trigger a resize on the map when either the tab button or the toggle field bar are pressed
 
 		// get the tab element where this map is integrated
-		var $tab = $('#_' + $(map.b).closest('.InputfieldFieldsetTabOpen').attr('id'));
+		var $map = $('#' + mapId); 
+		var $tab = $('#_' + $map.closest('.InputfieldFieldsetTabOpen').attr('id'));
 		// get the inputfield where this map is integrated and add the tab to the stack
-		var $inputFields = $(map.b).closest('.Inputfield').find('.InputfieldStateToggle').add($tab);
+		var $inputFields = $map.closest('.Inputfield').find('.InputfieldStateToggle').add($tab);
 
 		$inputFields.on('click',function(){
 			// give it time to open
