@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 
 /**
  * Class to hold an address and geocode it to latitude/longitude
@@ -47,7 +47,7 @@ class MapMarker extends WireData {
 			if(!is_numeric($value)) $value = '';	
 
 		} else if($key == 'address') {
-			$value = wire('sanitizer')->text($value);
+			$value = $this->wire('sanitizer')->text($value);
 
 		} else if($key == 'status') { 
 			$value = (int) $value; 

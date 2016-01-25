@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 
 /**
  * ProcessWire Map Marker Fieldtype
@@ -204,7 +204,7 @@ class FieldtypeMapMarker extends Fieldtype {
 	 */
 	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
 		if(!$subfield || $subfield == 'address') $subfield = 'data';
-		if($subfield != 'data' || wire('db')->isOperator($operator)) {
+		if($subfield != 'data' || $this->wire('db')->isOperator($operator)) {
 			// if dealing with something other than address, or operator is native to SQL,
 			// then let Fieldtype::getMatchQuery handle it instead
 			return parent::getMatchQuery($query, $table, $subfield, $operator, $value); 
