@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 
 /**
  * Class to hold an address and geocode it to latitude/longitude
@@ -47,7 +47,7 @@ class MapMarker extends WireData {
 			if(!is_numeric($value)) $value = '';	
 
 		} else if($key == 'address') {
-			$value = wire('sanitizer')->text($value);
+			$value = $this->wire('sanitizer')->text($value);
 
 		} else if($key == 'status') { 
 			$value = (int) $value; 
@@ -76,7 +76,7 @@ class MapMarker extends WireData {
 			return 0;
 		}
 
-		$url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . urlencode($this->address);
+		$url = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($this->address);
 		$json = file_get_contents($url);
 		$json = json_decode($json, true);
 

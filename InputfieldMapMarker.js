@@ -101,17 +101,11 @@ var InputfieldMapMarker = {
 			return true;
 		});
 
-		// added by diogo to solve the problem of maps not rendering correctly in hidden elements
-		// trigger a resize on the map when either the tab button or the toggle field bar are pressed
-
-		// get the tab element where this map is integrated
-		var $map = $('#' + mapId); 
-		var $tab = $('#_' + $map.closest('.InputfieldFieldsetTabOpen').attr('id'));
-		// get the inputfield where this map is integrated and add the tab to the stack
-		var $inputFields = $map.closest('.Inputfield').find('.InputfieldStateToggle').add($tab);
-
-		$inputFields.on('click',function(){
-			// give it time to open
+		// added by diogo to solve the problem of maps not rendering correctly in hidden elements - updated by Tom
+		// trigger a resize on the map when either the tab or toggle state is clicked
+		$.fn.attrChange=function(t,r,a){return this.each(function(){var e=this,n=new MutationObserver(function(e){e.forEach(function(e){var n=$(e.target).prop(e.attributeName);e.attributeName===t&&(n=n.split(" "),-1===$.inArray(r,n)&&a())})});n.observe(e,{attributes:!0})})};
+		
+		$map.closest('.Inputfield').attrChange("class", "InputfieldStateHidden", function(){
 			window.setTimeout(function(){
 				google.maps.event.trigger(map,'resize');
 				map.setCenter(options.center); 

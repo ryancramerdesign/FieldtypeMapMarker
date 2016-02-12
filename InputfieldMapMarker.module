@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 
 /**
  * ProcessWire Map Marker Inputfield
@@ -52,7 +52,7 @@ class InputfieldMapMarker extends Inputfield {
 	 *
 	 */
 	public function init() {
-		$this->config->scripts->add(($this->config->https ? 'https' : 'http') . '://maps.google.com/maps/api/js?sensor=false'); 
+		$this->config->scripts->add(($this->config->https ? 'https' : 'http') . '://maps.google.com/maps/api/js'); 
 		return parent::init();
 	}
 
