@@ -19,12 +19,12 @@
  *
  */
 
-class FieldtypeMapMarker extends Fieldtype {
+class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Marker',
-			'version' => 206,
+			'version' => 207,
 			'summary' => 'Field that stores an address with latitude and longitude coordinates and has built-in geocoding capability with Google Maps API.',
 			'installs' => 'InputfieldMapMarker',
 			'icon' => 'map-marker', 
@@ -36,7 +36,9 @@ class FieldtypeMapMarker extends Fieldtype {
 	 *
 	 */
 	public function __construct() {	
-		require_once(dirname(__FILE__) . '/MapMarker.php'); 
+		require_once(dirname(__FILE__) . '/MapMarker.php');
+		$this->set('apiKey', '');
+		$this->set('urlParameters', '?sensor=false&v=3');
 	}
 
 	/**
@@ -215,6 +217,11 @@ class FieldtypeMapMarker extends Fieldtype {
 		return $query;
 	}
 
+	public function getGoogleMapsUrl() {
+		$apiKey = ($this->get('apiKey')) ? "&key={$this->get('apiKey')}" : "";
+		return ($this->config->https ? 'https' : 'http') . '://maps.google.com/maps/api/js' . $this->get('urlParameters') . $apiKey;
+	}
+
 	/**
 	 * Perform installation: check that this fieldtype can be used with geocoding and warn them if not. 
 	 *
@@ -223,6 +230,35 @@ class FieldtypeMapMarker extends Fieldtype {
 		if(!ini_get('allow_url_fopen')) {
 			$this->error("Some parts of MapMarker geocoding will not work because 'allow_url_fopen' is denied in your PHP settings."); 
 		}
+	}
+
+	public function getModuleConfigInputfields(array $data) {
+
+		$inputfields = $this->wire(new InputfieldWrapper());
+
+		$name = "apiKey";
+		if(!isset($data[$name])) $data[$name] = $this->get('apiKey');
+		$f = $this->wire('modules')->get('InputfieldText');
+		$f->attr('name', $name);
+		$f->attr('value', $data[$name]);
+		$f->label = $this->_('Api Key');
+		$f->description = $this->_('Enter an **api key** taken from **Google APIs console**. If you do not have an **api key**, you can get an **api key** from **Google APIs console** by [clicking here](https://developers.google.com/maps/documentation/javascript/get-api-key#get-an-api-key).');
+
+		$inputfields->append($f);
+
+		$name = "urlParameters";
+		if(!isset($data[$name])) $data[$name] = $this->get('urlParameters');
+		$f = $this->wire('modules')->get('InputfieldText');
+		$f->attr('name', $name);
+		$f->attr('value', $data[$name]);
+		$f->label = $this->_('Url Parameters');
+		$f->description = $this->_('Enter your custom url parameters. If you enter an **api** key do not add your **api key** here. If **api** key entered this key will be added to your parameters automatically.');
+		$f->notes = $this->_('Default value: ') . '?sensor=false&v=3';
+
+		$inputfields->append($f);
+
+		return $inputfields;
+
 	}
 }
 
