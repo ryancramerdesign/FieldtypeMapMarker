@@ -5,14 +5,19 @@
  *
  * Provides the admin control panel inputs for FieldtypeMapMarker
  * 
- * For documentation about the fields used in this class, please see:  
- * /wire/core/Fieldtype.php
- * 
  * ProcessWire 2.x 
- * Copyright (C) 2013 by Ryan Cramer 
- * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * Copyright (C) 2016 by Ryan Cramer 
+ * Licensed under MPL 2.0
  * 
- * http://processwire.com
+ * https://processwire.com
+ * 
+ * @property string $defaultAddr
+ * @property int $defaultZoom
+ * @property string $defaultType
+ * @property string $defaultLat
+ * @property string $defaultLng
+ * @property int $height
+ * @property string $googleApiKey
  *
  */
 
@@ -21,7 +26,7 @@ class InputfieldMapMarker extends Inputfield {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Marker',
-			'version' => 207,
+			'version' => 208,
 			'summary' => "Provides input for the MapMarker Fieldtype",
 			'requires' => 'FieldtypeMapMarker',
 			'icon' => 'map-marker', 
@@ -42,24 +47,19 @@ class InputfieldMapMarker extends Inputfield {
 		$this->set('defaultLat', ''); 
 		$this->set('defaultLng', ''); 
 		$this->set('height', 300); 
+		$this->set('googleApiKey', '');
 		parent::__construct();
-	}
-
-	/**
-	 * Initialize the MapMarker Inputfield
-	 *
-	 * We require Google Maps API for map display, so we add it the scripts that will be loaded in PW admin
-	 *
-	 */
-	public function init() {
-		$this->config->scripts->add(($this->config->https ? 'https' : 'http') . '://maps.google.com/maps/api/js?sensor=false'); 
-		return parent::init();
 	}
 
 	/**
 	 * Set an attribute to this Inputfield
 	 *
 	 * In this case, we just capture the 'value' attribute and make sure it's something valid
+	 * 
+	 * @param string $key
+	 * @param mixed $value
+	 * @return $this
+	 * @throws WireException
  	 *
 	 */
 	public function setAttribute($key, $value) {
@@ -74,9 +74,19 @@ class InputfieldMapMarker extends Inputfield {
 	public function isEmpty() {
 		return (!$this->value || ((float) $this->value->lat) === 0.0); 
 	}
+	
+	public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+		$url = 'https://maps.google.com/maps/api/js';
+		$key = $this->get('googleApiKey');
+		if($key) $url .= "?key=$key";
+		$this->config->scripts->add($url);
+		return parent::renderReady($parent, $renderValueMode);
+	}
 
 	/**
 	 * Render the markup needed to draw the Inputfield
+	 * 
+	 * @return string
 	 *
 	 */
 	public function ___render() {
@@ -92,7 +102,7 @@ class InputfieldMapMarker extends Inputfield {
 		$status = $marker->status == MapMarker::statusNoGeocode ? 0 : $marker->status; 
 		$mapType = $this->defaultType; 
 		$height = $this->height ? (int) $this->height : 300; 
-
+	
 		$labels = array(
 			'addr' => $this->_('Address'), 
 			'lat' => $this->_('Latitude'),
@@ -156,12 +166,26 @@ _OUT;
 			"</div>";
 
 		$this->notes = $marker->statusString; 
+		
+		if(!$this->get('googleApiKey')) {
+			$msg = $this->_('Please setup a Google Maps API key in the FieldtypeMapMarker module settings');
+			if($this->wire('user')->isSuperuser()) {
+				$link = "<a href='{$this->config->urls->admin}module/edit?name=FieldtypeMapMarker'>";
+				$msg = "$link$msg</a>";
+				$this->warning($msg, Notice::allowMarkup);
+			} else {
+				$this->warning($msg);
+			}
+		}
 
 		return $out; 
 	}
 
 	/**
 	 * Process the input after a form submission
+	 * 
+	 * @param WireInputData $input
+	 * @return $this
 	 *
 	 */
 	public function ___processInput(WireInputData $input) {
@@ -219,6 +243,7 @@ _OUT;
 	public function ___getConfigInputfields() {
 		$inputfields = parent::___getConfigInputfields();
 
+		/** @var InputfieldText $field */
 		$field = $this->modules->get('InputfieldText'); 
 		$field->attr('name', 'defaultAddr'); 
 		$field->label = $this->_('Default Address'); 
@@ -238,20 +263,23 @@ _OUT;
 			}
 		}
 
+		/** @var InputfieldText $field */
 		$field = $this->modules->get('InputfieldText'); 
 		$field->attr('name', 'defaultLat'); 
 		$field->label = $this->_('Default Latitude'); 
 		$field->attr('value', $this->defaultLat); 
 		$field->columnWidth = 50; 
-		$inputfields->add($field); 
+		$inputfields->add($field);
 
+		/** @var InputfieldText $field */
 		$field = $this->modules->get('InputfieldText'); 
 		$field->attr('name', 'defaultLng'); 
 		$field->label = $this->_('Default Longitude'); 
 		$field->attr('value', $this->defaultLng); 
 		$field->columnWidth = 50; 
-		$inputfields->add($field); 
+		$inputfields->add($field);
 
+		/** @var InputfieldRadios $field */
 		$field = $this->modules->get('InputfieldRadios'); 
 		$field->attr('name', 'defaultType'); 
 		$field->label = $this->_('Default Map Type'); 
@@ -261,24 +289,27 @@ _OUT;
 		$field->attr('value', $this->defaultType); 
 		$field->optionColumns = 1; 
 		$field->columnWidth = 50; 
-		$inputfields->add($field); 
+		$inputfields->add($field);
 
+		/** @var InputfieldInteger $field */
 		$field = $this->modules->get('InputfieldInteger'); 	
 		$field->attr('name', 'height'); 
 		$field->label = $this->_('Map Height (in pixels)'); 
 		$field->attr('value', $this->height); 
 		$field->attr('type', 'number'); 
 		$field->columnWidth = 50; 
-		$inputfields->add($field); 
+		$inputfields->add($field);
 
+		/** @var InputfieldInteger $field */
 		$field = $this->modules->get('InputfieldInteger'); 	
 		$field->attr('name', 'defaultZoom'); 
 		$field->label = $this->_('Default Zoom'); 
 		$field->description = $this->_('Enter a value between 1 and 23. The highest zoom level is typically somewhere between 19-23, depending on the location being zoomed and how much data Google has for the location.');  // Zoom level description
 		$field->attr('value', $this->defaultZoom); 
 		$field->attr('type', 'number'); 
-		$inputfields->add($field); 
+		$inputfields->add($field);
 
+		/** @var InputfieldMarkup $field */
 		$field = $this->modules->get('InputfieldMarkup'); 
 		$field->label = $this->_('API Notes'); 
 		$field->description = $this->_('You can access individual values from this field using the following from your template files:');

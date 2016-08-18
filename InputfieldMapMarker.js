@@ -9,6 +9,7 @@ var InputfieldMapMarker = {
 		zoom: 12, // mats, previously 5
 		draggable: true, // +mats
 		center: null,
+		//key: config.InputfieldMapMarker.googleApiKey, 
 		mapTypeId: google.maps.MapTypeId.HYBRID,
 		scrollwheel: false,	
 		mapTypeControlOptions: {

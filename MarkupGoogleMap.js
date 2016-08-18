@@ -4,8 +4,8 @@
  * Renders maps for the FieldtypeMapMarker module
  * 
  * ProcessWire 2.x 
- * Copyright (C) 2013 by Ryan Cramer 
- * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * Copyright (C) 2016 by Ryan Cramer 
+ * Licensed under MPL 2.0
  * 
  * http://processwire.com
  *

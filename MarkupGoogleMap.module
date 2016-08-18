@@ -6,17 +6,17 @@
  * Renders maps for the FieldtypeMapMarker module
  * 
  * ProcessWire 2.x 
- * Copyright (C) 2013 by Ryan Cramer 
- * Licensed under GNU/GPL v2, see LICENSE.TXT
+ * Copyright (C) 2016 by Ryan Cramer 
+ * Licensed under MPL 2.0
  * 
- * http://processwire.com
+ * https://processwire.com
  *
  * USAGE:
  * ======
  *
  * Add this somewhere before your closing </head> tag:
  * 
- *    <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
+ *    <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js'></script>
  *  
  * In the location where you want to output your map, do the following in your template file:
  * 
@@ -112,6 +112,14 @@ class MarkupGoogleMap extends WireData implements Module {
 		require_once(dirname(__FILE__) . '/MapMarker.php'); 
 	}
 
+	/**
+	 * Get associative array of map options
+	 * 
+	 * @param string $fieldName
+	 * @return array
+	 * @throws WireException
+	 * 
+	 */
 	public function getOptions($fieldName) {
 
 		static $n = 0; 
@@ -142,10 +150,30 @@ class MarkupGoogleMap extends WireData implements Module {
 			);
 	}
 
+	/**
+	 * Get the script tag for loading Google Maps
+	 * 
+	 * @return string
+	 * @throws WireException
+	 * 
+	 */
 	public function getGMapScript() {
-		return "<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>";
+		$url = 'https://maps.google.com/maps/api/js';
+		$key = $this->wire('modules')->get('FieldtypeMapMarker')->get('googleApiKey');
+		if($key) $url .= "?key=$key";
+		return "<script type='text/javascript' src='$url'></script>";
 	}
 
+	/**
+	 * Render map markup
+	 * 
+	 * @param PageArray|Page $pageArray Page (or multiple pages in PageArray) containing map field
+	 * @param $fieldName Name of the map field
+	 * @param array $options Options to adjust behavior
+	 * @return string
+	 * @throws WireException
+	 * 
+	 */
 	public function render($pageArray, $fieldName, array $options = array()) {
 
 		static $n = 0; 
@@ -193,7 +221,7 @@ class MarkupGoogleMap extends WireData implements Module {
 
 		$out .= "<script type='text/javascript'>" .
 			"if(typeof google === 'undefined' || typeof google.maps === 'undefined') { " . 
-			"alert('MarkupGoogleMap Error: Please add the maps.googleapis.com script in your document head.'); " . 
+			"alert('MarkupGoogleMap Error: Please add the maps.google.com script in your document head.'); " . 
 			"} else { " . 
 			"var $id = new MarkupGoogleMap(); " . 
 			"$id.setOption('zoom', $zoom); " . 

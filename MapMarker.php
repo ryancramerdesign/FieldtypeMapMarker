@@ -2,6 +2,14 @@
 
 /**
  * Class to hold an address and geocode it to latitude/longitude
+ * 
+ * @property string $lat
+ * @property string $lng
+ * @property string $address
+ * @property int $status
+ * @property int $zoom
+ * @property bool $skipGeocode
+ * @property string $statusString
  *
  */
 class MapMarker extends WireData {
@@ -37,6 +45,7 @@ class MapMarker extends WireData {
 		$this->set('zoom', 0); 
 		// temporary runtime property to indicate the geocode should be skipped
 		$this->set('skipGeocode', false);
+		$this->set('statusString', '');
 	}
 
 	public function set($key, $value) {
@@ -71,14 +80,11 @@ class MapMarker extends WireData {
 		if($this->geocodedAddress == $this->address) return $this->status; 
 		$this->geocodedAddress = $this->address;
 
-		if(!ini_get('allow_url_fopen')) {
-			$this->error("Geocode is not supported because 'allow_url_fopen' is disabled in PHP"); 
-			return 0;
-		}
-
-		$url = "http://maps.googleapis.com/maps/api/geocode/json?sensor=false&address=" . urlencode($this->address);
-		$json = file_get_contents($url);
-		$json = json_decode($json, true);
+		$url = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($this->address);
+		$apiKey = $this->modules->get('FieldtypeMapMarker')->get('googleApiKey');
+		if($apiKey) $url .= "&key=$apiKey";
+		$http = new WireHttp();
+		$json = $http->getJSON($url, true);
 
 		if(empty($json['status']) || $json['status'] != 'OK') {
 			$this->error("Error geocoding address");
