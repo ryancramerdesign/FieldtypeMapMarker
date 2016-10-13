@@ -156,7 +156,7 @@ class InputfieldMapMarker extends Inputfield {
 
 _OUT;
 
-		$out .= "<div class='InputfieldMapMarkerMap' " . 
+		$out .= "<div class='InputfieldMapMarkerMap uninitialized' " . 
 			"id='_{$id}_map' " . 
 			"style='height: {$height}px' " . 
 			"data-lat='$marker->lat' " . 

@@ -123,8 +123,13 @@ var InputfieldMapMarker = {
 };
 
 $(document).ready(function() {
-	$(".InputfieldMapMarkerMap").each(function() {
-		var $t = $(this);
-		InputfieldMapMarker.init($t.attr('id'), $t.attr('data-lat'), $t.attr('data-lng'), $t.attr('data-zoom'), $t.attr('data-type')); 
-	}); 
+	// Inputfields that are loaded by AJAX (e.g. in a collapsed repeater) might not exist yet on document.ready
+	// Periodically check for new InputfieldMapMarkerMaps and init them
+	window.setInterval( function initMapMarkersDelayed() {
+		$(".InputfieldMapMarkerMap.uninitialized").each(function() {
+			var $t = $(this);
+			$t.removeClass('uninitialized');
+			InputfieldMapMarker.init($t.attr('id'), $t.attr('data-lat'), $t.attr('data-lng'), $t.attr('data-zoom'), $t.attr('data-type')); 
+		});
+	}, 1000);
 }); 
