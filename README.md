@@ -96,7 +96,7 @@ echo $map->render($items, 'map');
 To specify options, provide a 3rd argument with an options array:
 `````````
 $map = $modules->get('MarkupGoogleMap'); 
-echo $map->render($items, 'map', array('height' => '500px')); 
+echo $map->render($page, 'map', array('height' => '500px')); 
 `````````
 
 ### Options
