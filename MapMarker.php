@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 
 /**
  * Class to hold an address and geocode it to latitude/longitude
@@ -17,7 +17,6 @@ class MapMarker extends WireData {
 	const statusNoGeocode = -100;
 
 	protected $geocodeStatuses = array(
-
 		0 => 'N/A',
 		1 => 'OK',
 		2 => 'OK_ROOFTOP', 
@@ -32,12 +31,12 @@ class MapMarker extends WireData {
 		-5 => 'INVALID_REQUEST',
 
 		-100 => 'Geocode OFF', // RCD
-
-		);
+	);
 
 	protected $geocodedAddress = '';
 
 	public function __construct() {
+		parent::__construct();
 		$this->set('lat', '');
 		$this->set('lng', '');
 		$this->set('address', ''); 
@@ -56,7 +55,7 @@ class MapMarker extends WireData {
 			if(!is_numeric($value)) $value = '';	
 
 		} else if($key == 'address') {
-			$value = wire('sanitizer')->text($value);
+			$value = $this->wire()->sanitizer->text($value);
 
 		} else if($key == 'status') { 
 			$value = (int) $value; 
@@ -81,13 +80,17 @@ class MapMarker extends WireData {
 		$this->geocodedAddress = $this->address;
 
 		$url = "https://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($this->address);
-		$apiKey = $this->modules->get('FieldtypeMapMarker')->get('googleApiKey');
+	
+		/** @var FieldtypeMapMarker $fieldtype */
+		$fieldtype = $this->modules->get('FieldtypeMapMarker');
+		$apiKey = $fieldtype->get('googleApiKey');
 		if($apiKey) $url .= "&key=$apiKey";
 		$http = new WireHttp();
 		$json = $http->getJSON($url, true);
+		if(empty($json['status'])) $json['status'] = 'No response';
 
-		if(empty($json['status']) || $json['status'] != 'OK') {
-			$this->error("Error geocoding address");
+		if($json['status'] != 'OK') {
+			$this->error("Error geocoding address: $json[status] ($url)");
 			if(isset($json['status'])) $this->status = (int) array_search($json['status'], $this->geocodeStatuses);
 				else $this->status = -1; 
 			$this->lat = 0;
@@ -121,6 +124,3 @@ class MapMarker extends WireData {
 	}
 
 }
-
-
-

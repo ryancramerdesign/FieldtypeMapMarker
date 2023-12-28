@@ -1,12 +1,12 @@
-<?php
+<?php namespace ProcessWire; 
 
 /**
  * ProcessWire Map Markup
  *
  * Renders maps for the FieldtypeMapMarker module
  * 
- * ProcessWire 2.x 
- * Copyright (C) 2016 by Ryan Cramer 
+ * ProcessWire 3.x 
+ * Copyright (C) 2023 by Ryan Cramer 
  * Licensed under MPL 2.0
  * 
  * https://processwire.com
@@ -16,7 +16,7 @@
  *
  * Add this somewhere before your closing </head> tag:
  * 
- *    <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js'></script>
+ *    <script type='text/javascript' src='<?=$modules->FieldtypeMapMarker->getGoogleMapsURL();?>'></script>
  *  
  * In the location where you want to output your map, do the following in your template file:
  * 
@@ -98,10 +98,10 @@ class MarkupGoogleMap extends WireData implements Module {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Markup (Google Maps)',
-			'version' => 101,
+			'version' => 300,
 			'summary' => 'Renders Google Maps for the MapMarker Fieldtype',
 			'requires' => 'FieldtypeMapMarker',
-			);
+		);
 	}
 
 	/**
@@ -123,7 +123,7 @@ class MarkupGoogleMap extends WireData implements Module {
 	public function getOptions($fieldName) {
 
 		static $n = 0; 
-		$field = $this->fields->get($fieldName); 
+		$field = $this->wire()->fields->get($fieldName); 
 		if(!$field) throw new WireException("Unknown field: $fieldName"); 
 
 		return array(
@@ -135,19 +135,19 @@ class MarkupGoogleMap extends WireData implements Module {
 			'markerLinkField' => 'url', 
 			'markerTitleField' => 'title', 
 			'width' => '100%', 
-			'height' => $field->height, 
-			'zoom' => $field->defaultZoom ? (int) $field->defaultZoom : 12, 
-			'type' => $field->defaultType ? $field->defaultType : 'HYBRID', 
+			'height' => $field->get('height'), 
+			'zoom' => $field->get('defaultZoom') ? (int) $field->get('defaultZoom') : 12, 
+			'type' => $field->get('defaultType') ? $field->get('defaultType') : 'HYBRID', 
 			'id' => "mgmap" . (++$n), 
 			'class' => "MarkupGoogleMap", 
-			'lat' => $field->defaultLat,
-			'lng' => $field->defaultLng,
+			'lat' => $field->get('defaultLat'),
+			'lng' => $field->get('defaultLng'),
 			'icon' => '', // url to icon (blank=use default)
 			'iconHover' => '', // url to icon when hovered (default=none)
 			'shadow' => '', // url to icon shadow (blank=use default)
 			'init' => '', // additional javascript code to insert in map initialization
 			'n' => $n, 
-			);
+		);
 	}
 
 	/**
@@ -159,7 +159,7 @@ class MarkupGoogleMap extends WireData implements Module {
 	 */
 	public function getGMapScript() {
 		$url = 'https://maps.google.com/maps/api/js';
-		$key = $this->wire('modules')->get('FieldtypeMapMarker')->get('googleApiKey');
+		$key = $this->wire()->modules->get('FieldtypeMapMarker')->get('googleApiKey');
 		if($key) $url .= "?key=$key";
 		return "<script type='text/javascript' src='$url'></script>";
 	}
@@ -168,13 +168,14 @@ class MarkupGoogleMap extends WireData implements Module {
 	 * Render map markup
 	 * 
 	 * @param PageArray|Page $pageArray Page (or multiple pages in PageArray) containing map field
-	 * @param $fieldName Name of the map field
+	 * @param string $fieldName Name of the map field
 	 * @param array $options Options to adjust behavior
 	 * @return string
 	 * @throws WireException
 	 * 
 	 */
 	public function render($pageArray, $fieldName, array $options = array()) {
+		$config = $this->wire()->config;
 
 		static $n = 0; 
 		$n++;
@@ -215,11 +216,15 @@ class MarkupGoogleMap extends WireData implements Module {
 		$id = $options['id'];
 		$out = '';
 
-		if($n === 1) $out .= "<script type='text/javascript' src='{$this->config->urls->MarkupGoogleMap}MarkupGoogleMap.js'></script>";
+		if($n === 1) {
+			$url = $config->urls('MarkupGoogleMap');
+			$out .= "<script type='text/javascript' src='{$url}MarkupGoogleMap.js'></script>";
+		}
 
 		$out .= "<div id='$id' class='$options[class]'$style></div>";
 
-		$out .= "<script type='text/javascript'>" .
+		$out .= 
+			"<script type='text/javascript'>" .
 			"if(typeof google === 'undefined' || typeof google.maps === 'undefined') { " . 
 			"alert('MarkupGoogleMap Error: Please add the maps.google.com script in your document head.'); " . 
 			"} else { " . 
@@ -248,4 +253,3 @@ class MarkupGoogleMap extends WireData implements Module {
 		return $out; 
 	}
 }
-

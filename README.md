@@ -55,12 +55,12 @@ else that you might need latitude/longitude for).
 
 Lets assume that your field is called 'map'. Here is how you would access the
 components of it from the API:
-```````````
+```php
 echo $page->map->address;	// outputs the address you entered
 echo $page->map->lat; 		// outputs the latitude
 echo $page->map->lng; 		// outputs the longitude
 echo $page->map->zoom;		// outputs the zoom level
-`````````
+```
 
 -------------
 
@@ -74,30 +74,30 @@ meaning it exists primarily to generate markup for output on the front-end of yo
 ### How to use
 
 Add this somewhere before your closing `</head>` tag:
-`````````
+```html
 <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
-`````````
+```
 
 In the location where you want to output your map, place the following in your template file:
-`````````
+```php
 $map = $modules->get('MarkupGoogleMap'); 
 echo $map->render($page, 'map'); 
-`````````
-In the above, $page is the Page object that has the 'map' field. Rreplace 'map' with the name of 
-your FieldtypeMap field
+```
+In the above, $page is the Page object that has the 'map' field. Replace 'map' with the name of 
+your map field.
 
 To render a map with multiple markers on it, specify a PageArray rather than a single $page: 
-`````````
+```php
 $items = $pages->find("template=something, map!='', sort=title"); 
 $map = $modules->get('MarkupGoogleMap'); 
 echo $map->render($items, 'map'); 
-`````````
+````
 
 To specify options, provide a 3rd argument with an options array:
-`````````
+```php
 $map = $modules->get('MarkupGoogleMap'); 
 echo $map->render($items, 'map', array('height' => '500px')); 
-`````````
+```
 
 ### Options
 
@@ -144,4 +144,3 @@ Page field to use for the marker title, or blank not to use a marker title (type
 When multiple markers are present, set map to automatically adjust to fit to the given markers (type: boolean; default: true). 
 
 ---------
-

@@ -1,4 +1,4 @@
-<?php
+<?php namespace ProcessWire;
 
 /**
  * ProcessWire Map Marker Fieldtype
@@ -8,8 +8,8 @@
  * For documentation about the fields used in this class, please see:  
  * /wire/core/Fieldtype.php
  * 
- * ProcessWire 2.x 
- * Copyright (C) 2016 by Ryan Cramer 
+ * ProcessWire 3.x 
+ * Copyright (C) 2023 by Ryan Cramer 
  * Licensed under MPL 2.0
  * 
  * https://processwire.com
@@ -25,11 +25,11 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	public static function getModuleInfo() {
 		return array(
 			'title' => 'Map Marker',
-			'version' => 209,
+			'version' => 300,
 			'summary' => 'Field that stores an address with latitude and longitude coordinates and has built-in geocoding capability with Google Maps API.',
 			'installs' => 'InputfieldMapMarker',
 			'icon' => 'map-marker', 
-			);
+		);
 	}
 
 	/**
@@ -37,7 +37,25 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 *
 	 */
 	public function __construct() {	
+		parent::__construct();
 		require_once(dirname(__FILE__) . '/MapMarker.php'); 
+	}
+	
+	public function set($key, $value) {
+		/*
+		if($key === 'googleApiKey' && strpos($this->wire('config')->httpHost, 'localhost') !== false) {
+			// disable API key when in localhost environment
+			if($this->wire('page')->template == 'admin') $value = '';
+		}
+		*/
+		return parent::set($key, $value);
+	}
+	
+	public function getGoogleMapsURL() {
+		$url = 'https://maps.google.com/maps/api/js';
+		$key = $this->get('googleApiKey');
+		if($key) $url .= "?key=$key";
+		return $url;
 	}
 
 	/**
@@ -50,7 +68,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 */
 	public function getInputfield(Page $page, Field $field) {
 		/** @var InputfieldMapMarker $inputfield */
-		$inputfield = $this->modules->get('InputfieldMapMarker'); 
+		$inputfield = $this->wire()->modules->get('InputfieldMapMarker'); 
 		$inputfield->set('googleApiKey', $this->get('googleApiKey'));
 		return $inputfield; 
 	}
@@ -96,7 +114,9 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 *
 	 */
 	public function getBlankValue(Page $page, Field $field) {
-		return new MapMarker(); 
+		$value = new MapMarker(); 
+		$this->wire($value);
+		return $value;
 	}
 
 	/**
@@ -105,7 +125,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 * @param Page $page
 	 * @param Field $field
 	 * @param string|int|array $value
-	 * @return string|int|array|object $value
+	 * @return MapMarker
 	 *
 	 */
 	public function ___wakeupValue(Page $page, Field $field, $value) {
@@ -133,7 +153,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 * @param Page $page
 	 * @param Field $field
 	 * @param string|int|array|object $value
-	 * @return string|int
+	 * @return array
 	 * @throws WireException
 	 *
 	 */
@@ -141,11 +161,14 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 
 		$marker = $value;
 
-		if(!$marker instanceof MapMarker) 
+		if(!$marker instanceof MapMarker) {
 			throw new WireException("Expecting an instance of MapMarker");
+		}
 
 		// if the address was changed, then force it to geocode the new address
-		if($marker->isChanged('address') && $marker->address && $marker->status != MapMarker::statusNoGeocode) $marker->geocode();
+		if($marker->isChanged('address') && $marker->address && $marker->status != MapMarker::statusNoGeocode) {
+			$marker->geocode();
+		}
 
 		$sleepValue = array(
 			'data' => $marker->address, 
@@ -153,7 +176,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 			'lng' => strlen($marker->lng) ? $marker->lng : 0, 
 			'status' => $marker->status,
 			'zoom' => $marker->zoom
-			);
+		);
 
 		return $sleepValue; 
 	}
@@ -206,7 +229,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 		if($schemaVersion == 0) {
 			// update schema to v1: add 'zoom' column	
 			$schemaVersion = 1; 
-			$database = $this->wire('database');
+			$database = $this->wire()->database;
 			$table = $database->escapeTable($field->getTable());
 			$query = $database->prepare("SHOW TABLES LIKE '$table'"); 
 			$query->execute();
@@ -218,7 +241,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 				if(!$query->rowCount()) try {
 					$database->exec("ALTER TABLE `$table` ADD zoom $schema[zoom] AFTER status");
 					$this->message("Added 'zoom' column to '$field->table'"); 
-				} catch(Exception $e) {
+				} catch(\Exception $e) {
 					$this->error($e->getMessage()); 
 				}
 			}
@@ -231,7 +254,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	/**
 	 * Match values for PageFinder
 	 * 
-	 * @param DatabaseQuerySelect $query
+	 * @param PageFinderDatabaseQuerySelect|DatabaseQuerySelect $query
 	 * @param string $table
 	 * @param string $subfield
 	 * @param string $operator
@@ -241,7 +264,7 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 */
 	public function getMatchQuery($query, $table, $subfield, $operator, $value) {
 		if(!$subfield || $subfield == 'address') $subfield = 'data';
-		if($subfield != 'data' || $this->wire('database')->isOperator($operator)) {
+		if($subfield != 'data' || $this->wire()->database->isOperator($operator)) {
 			// if dealing with something other than address, or operator is native to SQL,
 			// then let Fieldtype::getMatchQuery handle it instead
 			return parent::getMatchQuery($query, $table, $subfield, $operator, $value); 
@@ -261,8 +284,9 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 	 */
 	public static function getModuleConfigInputfields(array $data) {
 		$inputfields = new InputfieldWrapper();
+		if(wire()->config->demo) $data['googleApiKey'] = 'Not shown in demo mode';
 		/** @var InputfieldText $f */
-		$f = wire('modules')->get('InputfieldText');
+		$f = wire()->modules->get('InputfieldText');
 		$f->attr('name', 'googleApiKey'); 
 		$f->label = __('Google Maps API Key'); 
 		$f->icon = 'map';
@@ -273,4 +297,3 @@ class FieldtypeMapMarker extends Fieldtype implements ConfigurableModule {
 		return $inputfields;
 	}
 }
-
